@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  todo-app:
+    build: .
+    volumes:
+      - .:/app  # Monte le répertoire courant sur /app dans le conteneur
+    ports:
+      - "8000:8000"  # Expose le port 8000 du conteneur
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

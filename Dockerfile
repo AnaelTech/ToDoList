@@ -11,7 +11,7 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copie les fichiers dans l'image
-COPY . /app
+COPY . /app/
 
 # Port de l'application
 EXPOSE 8000
