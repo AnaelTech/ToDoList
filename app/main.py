@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from pytest import Session
 
 app = FastAPI()
 
@@ -17,11 +16,6 @@ tasks = [
     {"id": 2, "titre": "Task 2", "description": "Second task", "statut": False},
 ]
 
-# Route de base
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
-
 # Récupérer toutes les tâches
 @app.get("/tasks")
 def get_all_tasks():
@@ -33,18 +27,37 @@ def get_task_by_id(task_id: int):
     task = next((task for task in tasks if task["id"] == task_id), None)
     if task:
         return {"task": task}
-    return {"error": "Task not found"}
+    raise HTTPException(status_code=404, detail="Task not found")
 
+# Créer une nouvelle tâche
+@app.post("/tasks")
+def create_task(task: Task):
+    if any(existing_task["id"] == task.id for existing_task in tasks):
+        raise HTTPException(status_code=400, detail="Task with this ID already exists")
+    tasks.append(task.dict())
+    return {"message": "Task created successfully", "task": task}
+
+# Mettre à jour une tâche existante
 @app.put("/tasks/{task_id}")
-def update_task(task_id: int, task: Task):
-    return {"task_title": task.title, "task_id": task_id}
+def update_task(task_id: int, updated_task: Task):
+    for index, task in enumerate(tasks):
+        if task["id"] == task_id:
+            tasks[index] = updated_task.dict()
+            return {"message": "Task updated successfully", "task": updated_task}
+    raise HTTPException(status_code=404, detail="Task not found")
 
+# Modifier partiellement une tâche (par exemple, changer le statut)
+@app.patch("/tasks/{task_id}")
+def update_task_status(task_id: int, statut: bool):
+    for task in tasks:
+        if task["id"] == task_id:
+            task["statut"] = statut
+            return {"message": "Task status updated successfully", "task": task}
+    raise HTTPException(status_code=404, detail="Task not found")
+
+# Supprimer une tâche
 @app.delete("/tasks/{task_id}")
 def delete_task(task_id: int):
-    with Session(engine) as session: # type: ignore
-        task = session.get(Task, task_id)
-        if not task:
-            raise HTTPException(status_code=404, detail="Hero not found")
-        session.delete(task)
-        session.commit()
-        return {"ok": True}
+    global tasks
+    tasks = [task for task in tasks if task["id"] != task_id]
+    return {"message": "Task deleted successfully"}
