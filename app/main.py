@@ -19,11 +19,17 @@ tasks = [
 # Récupérer toutes les tâches
 @app.get("/tasks")
 def get_all_tasks():
+    """
+    Retourne toutes les tâches.
+    """
     return {"tasks": tasks}
 
 # Récupérer une tâche spécifique par son ID
 @app.get("/tasks/{task_id}")
 def get_task_by_id(task_id: int):
+    """
+    Retourne une tâche spécifique par son ID.
+    """
     task = next((task for task in tasks if task["id"] == task_id), None)
     if task:
         return {"task": task}
@@ -32,6 +38,9 @@ def get_task_by_id(task_id: int):
 # Créer une nouvelle tâche
 @app.post("/tasks")
 def create_task(task: Task):
+    """
+    Crée une nouvelle tâche.
+    """
     if any(existing_task["id"] == task.id for existing_task in tasks):
         raise HTTPException(status_code=400, detail="Task with this ID already exists")
     tasks.append(task.dict())
@@ -40,6 +49,9 @@ def create_task(task: Task):
 # Mettre à jour une tâche existante
 @app.put("/tasks/{task_id}")
 def update_task(task_id: int, updated_task: Task):
+    """
+    Met à jour une tâche existante.
+    """
     for index, task in enumerate(tasks):
         if task["id"] == task_id:
             tasks[index] = updated_task.dict()
@@ -49,6 +61,9 @@ def update_task(task_id: int, updated_task: Task):
 # Modifier partiellement une tâche (par exemple, changer le statut)
 @app.patch("/tasks/{task_id}")
 def update_task_status(task_id: int, statut: bool):
+    """
+    Modifie partiellement une tâche, comme le changement de statut.
+    """
     for task in tasks:
         if task["id"] == task_id:
             task["statut"] = statut
@@ -58,6 +73,9 @@ def update_task_status(task_id: int, statut: bool):
 # Supprimer une tâche
 @app.delete("/tasks/{task_id}")
 def delete_task(task_id: int):
+    """
+    Supprime une tâche par son ID.
+    """
     global tasks
     tasks = [task for task in tasks if task["id"] != task_id]
     return {"message": "Task deleted successfully"}
