@@ -26,9 +26,18 @@ jobs:
       - name: Run tests with Docker
         run: |
           docker run --rm todo-app pytest tests/
-          
+
       - name: Push Docker image (optional)
         if: github.ref == 'refs/heads/main'
         run: |
           docker tag todo-app myusername/todo-app:latest
           docker push myusername/todo-app:latest
+
+      - name: Create merge commit
+        if: github.event_name == 'pull_request' && success() && github.ref == 'refs/heads/dev'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git checkout main
+          git merge dev --no-ff -m "Auto-merge after successful tests"
+          git push origin main
