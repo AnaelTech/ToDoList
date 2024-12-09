@@ -1,5 +1,8 @@
 name: CI Pipeline
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
@@ -34,7 +37,9 @@ jobs:
           docker push myusername/todo-app:latest
 
       - name: Create merge commit
-        if: github.event_name == 'pull_request' && success() && github.ref == 'refs/heads/dev'
+        if: github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev' && success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
