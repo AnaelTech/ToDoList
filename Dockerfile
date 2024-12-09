@@ -10,6 +10,9 @@ COPY requirements.txt /app/requirements.txt
 # Installation dépendances
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Installer les dépendances de développement (tests)
+RUN pip install --no-cache-dir -r requirements-dev.txt
+
 # Copie les fichiers dans l'image
 COPY . /app/
 
