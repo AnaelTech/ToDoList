@@ -1,0 +1,36 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - dev
+  push:
+    branches:
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  # Utilise une machine virtuelle Ubuntu
+
+    steps:
+      # 1. Checkout du code source
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Configurer Python avec l'image python:3.10-slim
+      - name: Set up Python 3.10 using python:3.10-slim
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # 3. Installer les dépendances principales et de développement
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  # Installe les dépendances principales
+          pip install -r requirements-dev.txt  # Installe pytest et autres dépendances dev
+
+      # 4. Exécuter les tests avec pytest
+      - name: Run tests
+        run: |
+          pytest tests/  # Remplacez 'tests/' par le chemin correct si nécessaire
