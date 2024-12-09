@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Fichier nécessaires pour l'image
 COPY requirements.txt /app/requirements.txt
+COPY requirements-dev.txt /app/requirements-dev.txt
 
 # Installation dépendances
 RUN pip install --no-cache-dir -r requirements.txt
