@@ -1,7 +1,8 @@
 name: CI Pipeline
 
 permissions:
-  contents: write
+  contents: write  # Permet la modification du dépôt
+  packages: write  # Nécessaire pour pousser les images Docker
 
 on:
   push:
@@ -30,7 +31,11 @@ jobs:
         run: |
           docker run --rm todo-app pytest tests/
 
-      - name: Push Docker image (optional)
+      - name: Log in to Docker Hub
+        if: github.ref == 'refs/heads/main'
+        run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      - name: Push Docker image
         if: github.ref == 'refs/heads/main'
         run: |
           docker tag todo-app myusername/todo-app:latest
