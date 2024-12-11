@@ -1,7 +1,3 @@
-# APPLICATION TODOLIST :notebook_with_decorative_cover:
-
----
-
 # ToDoList API
 
 ToDoList est une application API construite avec **FastAPI**, permettant de gérer une liste de tâches. Ce projet utilise des méthodes DevOps et est déployable avec **Docker**.
