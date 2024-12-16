@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  
 
       - name: Set up Docker
         run: |
@@ -28,7 +30,6 @@ jobs:
           docker build -t todo-app .
 
       - name: Run tests with Docker
-        if: success()
         run: |
           docker run --rm todo-app pytest tests/
 
@@ -36,18 +37,11 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      - name: Verify Docker login
-        if: github.ref == 'refs/heads/main'
-        run: docker info
-
       - name: Push Docker image
         if: github.ref == 'refs/heads/main'
         run: |
-          docker tag todo-app "${{ secrets.DOCKER_HUB_USERNAME }}"/todo-app:latest
-          docker push "${{ secrets.DOCKER_HUB_USERNAME }}"/todo-app:latest
-
-      - name: Clean up Docker
-        run: docker system prune -f
+          docker tag todo-app myusername/todo-app:latest
+          docker push myusername/todo-app:latest
 
       - name: Create merge commit
         if: github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev' && success()
@@ -56,6 +50,7 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+          git fetch origin dev:dev 
           git checkout main
           git merge dev --no-ff -m "Auto-merge after successful tests"
-          git push https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git main
+          git push origin main
